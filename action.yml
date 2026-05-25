@@ -1,0 +1,62 @@
+name: 'Upload Escrow Asset'
+description: 'Uploads an escrow asset to the cfx portal'
+author: 'Lukas Leisten'
+
+branding:
+  icon: 'upload-cloud'
+  color: 'gray-dark'
+
+inputs:
+  cookie:
+    description: 'Your Forum Account Cookie'
+    required: true
+  makeZip:
+    description:
+      'Automatically zip the full repository to upload it (true or false)'
+    required: false
+    default: true
+  assetName:
+    description: 'The asset name to re-upload'
+    required: false
+  maxRetries:
+    description: 'The maximum number of retries'
+    required: false
+    default: 3
+  zipPath:
+    description: 'The path to the zip file to upload'
+    required: false
+  assetId:
+    description: 'The asset id to re-upload'
+    required: false
+  beta:
+    description: 'Whether to upload as a release candidate'
+    required: false
+  changelog:
+    description: 'The changelog for the new version'
+    required: false
+  changelogFile:
+    description: 'The path to a file containing the changelog'
+    required: false
+  deleteOlderVersions:
+    description: 'Delete older versions of the asset after upload'
+    required: false
+    default: false
+  deleteBeforeUpload:
+    description: 'Delete all existing versions before uploading'
+    required: false
+    default: false
+  skipUpload:
+    description: 'Skip the upload and only go through the login process'
+    required: false
+  chunkSize:
+    description: 'The chunk size to split the file into'
+    required: false
+    default: 2097152
+
+outputs:
+  downloadPath:
+    description: 'Path to the downloaded escrowed zip file'
+
+runs:
+  using: node24
+  main: dist/index.js
