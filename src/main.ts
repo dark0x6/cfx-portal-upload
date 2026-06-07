@@ -47,6 +47,8 @@ export async function run(): Promise<void> {
       core.getInput('deleteOlderVersions').toLowerCase() === 'true'
     const deleteBeforeUpload =
       core.getInput('deleteBeforeUpload').toLowerCase() === 'true'
+    const waitForPack =
+      core.getInput('waitForPack').toLowerCase() === 'true'
 
     const chunkSize = parseInt(core.getInput('chunkSize'))
     const maxRetries = parseInt(core.getInput('maxRetries'))
@@ -130,15 +132,17 @@ export async function run(): Promise<void> {
         }
       }
 
-      core.info('Waiting for CFX to process the escrow ...')
-      const readyVersion = await pollUntilReady(assetId, uploadedVersionId, cookies)
-      const pack = readyVersion.packs[0]
+      if (waitForPack) {
+        core.info('Waiting for CFX to process the escrow ...')
+        const readyVersion = await pollUntilReady(assetId, uploadedVersionId, cookies)
+        const pack = readyVersion.packs[0]
 
-      const packFileName = assetName ? `${assetName}.pack.zip` : `asset-${assetId}.pack.zip`
-      const packOutputPath = `/tmp/${packFileName}`
-      await downloadPack(assetId, uploadedVersionId, pack.id, cookies, packOutputPath)
+        const packFileName = assetName ? `${assetName}.pack.zip` : `asset-${assetId}.pack.zip`
+        const packOutputPath = `/tmp/${packFileName}`
+        await downloadPack(assetId, uploadedVersionId, pack.id, cookies, packOutputPath)
 
-      core.setOutput('downloadPath', packOutputPath)
+        core.setOutput('downloadPath', packOutputPath)
+      }
     } else {
       throw new Error(
         'Redirect failed. Make sure the provided Cookie is valid.'

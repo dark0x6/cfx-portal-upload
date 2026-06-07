@@ -296146,6 +296146,7 @@ async function run() {
         const skipUpload = core.getInput('skipUpload').toLowerCase() === 'true';
         const deleteOlderVersions = core.getInput('deleteOlderVersions').toLowerCase() === 'true';
         const deleteBeforeUpload = core.getInput('deleteBeforeUpload').toLowerCase() === 'true';
+        const waitForPack = core.getInput('waitForPack').toLowerCase() === 'true';
         const chunkSize = parseInt(core.getInput('chunkSize'));
         const maxRetries = parseInt(core.getInput('maxRetries'));
         const betaInput = core.getInput('beta').toLowerCase();
@@ -296206,13 +296207,15 @@ async function run() {
                     }
                 }
             }
-            core.info('Waiting for CFX to process the escrow ...');
-            const readyVersion = await (0, utils_1.pollUntilReady)(assetId, uploadedVersionId, cookies);
-            const pack = readyVersion.packs[0];
-            const packFileName = assetName ? `${assetName}.pack.zip` : `asset-${assetId}.pack.zip`;
-            const packOutputPath = `/tmp/${packFileName}`;
-            await (0, utils_1.downloadPack)(assetId, uploadedVersionId, pack.id, cookies, packOutputPath);
-            core.setOutput('downloadPath', packOutputPath);
+            if (waitForPack) {
+                core.info('Waiting for CFX to process the escrow ...');
+                const readyVersion = await (0, utils_1.pollUntilReady)(assetId, uploadedVersionId, cookies);
+                const pack = readyVersion.packs[0];
+                const packFileName = assetName ? `${assetName}.pack.zip` : `asset-${assetId}.pack.zip`;
+                const packOutputPath = `/tmp/${packFileName}`;
+                await (0, utils_1.downloadPack)(assetId, uploadedVersionId, pack.id, cookies, packOutputPath);
+                core.setOutput('downloadPath', packOutputPath);
+            }
         }
         else {
             throw new Error('Redirect failed. Make sure the provided Cookie is valid.');

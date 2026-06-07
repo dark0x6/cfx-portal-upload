@@ -45,6 +45,10 @@ inputs:
     description: 'Delete all existing versions before uploading'
     required: false
     default: false
+  waitForPack:
+    description: 'Poll until the escrowed pack is ready and download it'
+    required: false
+    default: false
   skipUpload:
     description: 'Skip the upload and only go through the login process'
     required: false
