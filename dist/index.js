@@ -296898,14 +296898,13 @@ async function pollUntilReady(assetId, versionId, cookies, timeoutMs = 180000, p
  * @returns {Promise<string>} The output path.
  */
 async function downloadPack(assetId, versionId, packId, cookies, outputPath) {
-    core.info(`Downloading escrowed pack for asset ${assetId}...`);
-    const response = await axios_1.default.get(getUrl('DOWNLOAD_PACK', { id: assetId, version_id: versionId, pack_id: packId }), {
-        headers: { ...getBrowserHeaders(), Cookie: cookies },
-        responseType: 'stream'
-    });
+    core.info(`Fetching download URL for asset ${assetId}...`);
+    const { data } = await axios_1.default.get(getUrl('DOWNLOAD_PACK', { id: assetId, version_id: versionId, pack_id: packId }), { headers: { ...getBrowserHeaders(), Cookie: cookies } });
+    core.info(`Downloading escrowed pack from S3...`);
+    const fileResponse = await axios_1.default.get(data.url, { responseType: 'stream' });
     return new Promise((resolve, reject) => {
         const writer = fs_1.default.createWriteStream(outputPath);
-        response.data.pipe(writer);
+        fileResponse.data.pipe(writer);
         writer.on('finish', () => {
             core.info(`Escrowed pack downloaded to ${outputPath}`);
             resolve(outputPath);

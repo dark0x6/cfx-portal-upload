@@ -525,19 +525,20 @@ export async function downloadPack(
   cookies: string,
   outputPath: string
 ): Promise<string> {
-  core.info(`Downloading escrowed pack for asset ${assetId}...`)
+  core.info(`Fetching download URL for asset ${assetId}...`)
 
-  const response = await axios.get(
+  const { data } = await axios.get<{ url: string }>(
     getUrl('DOWNLOAD_PACK', { id: assetId, version_id: versionId, pack_id: packId }),
-    {
-      headers: { ...getBrowserHeaders(), Cookie: cookies },
-      responseType: 'stream'
-    }
+    { headers: { ...getBrowserHeaders(), Cookie: cookies } }
   )
+
+  core.info(`Downloading escrowed pack from S3...`)
+
+  const fileResponse = await axios.get(data.url, { responseType: 'stream' })
 
   return new Promise((resolve, reject) => {
     const writer = fs.createWriteStream(outputPath)
-    response.data.pipe(writer)
+    fileResponse.data.pipe(writer)
     writer.on('finish', () => {
       core.info(`Escrowed pack downloaded to ${outputPath}`)
       resolve(outputPath)
